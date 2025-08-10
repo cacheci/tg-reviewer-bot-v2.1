@@ -29,6 +29,13 @@ async def ban_user(update: Update, context: ContextTypes.DEFAULT_TYPE):
             parse_mode=ParseMode.MARKDOWN_V2,
         )
         return
+    if result == "":
+        await update.message.reply_text(
+            "请给出原因\n",
+            parse_mode=ParseMode.MARKDOWN_V2,
+        )
+        return
+
 
     username, fullname = await get_name_from_uid(context, user)
     Banned_user.ban_user(
