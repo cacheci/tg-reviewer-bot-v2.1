@@ -29,9 +29,9 @@ async def ban_user(update: Update, context: ContextTypes.DEFAULT_TYPE):
             parse_mode=ParseMode.MARKDOWN_V2,
         )
         return
-    if result == "":
+    if not result:
         await update.message.reply_text(
-            "请给出原因\n",
+            "请提供 ban 的原因\n",
             parse_mode=ParseMode.MARKDOWN_V2,
         )
         return
