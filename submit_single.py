@@ -108,6 +108,9 @@ async def confirm_submission(
     if query.data.startswith("cancel"):
         await query.edit_message_text(text="投稿已取消")
     elif query.data.startswith(("anonymous", "realname")):
+        if await check_submission(update) == False:
+            return
+
         submission_id = int(query.data.split("#")[-1])
         last_submission_time = submission_timestamp.get(submission_id)
         if (
@@ -248,6 +251,7 @@ async def confirm_submission(
         )
 
         Submitter.count_increase(user.id, "submission_count")
+        Submitter.add_count_in_hour(user.id)
 
 
 submission_handler = MessageHandler(
