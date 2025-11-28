@@ -10,7 +10,7 @@ from telegram import (
 from telegram.constants import ParseMode
 from telegram.ext import ContextTypes
 from telegram.ext.filters import MessageFilter
-from db_op import Banned_origin, Banned_user
+from db_op import Banned_origin, Banned_user, Submitter
 from env import TG_BANNED_NOTIFY, TG_TEXT_SPOILER
 
 
@@ -230,6 +230,14 @@ async def check_submission(update):
             if Banned_origin.is_banned(forward_from.chat.id):
                 await update.message.reply_text("此来源的投稿不被接受。")
                 return False
+    remiaining_count, max_count = Submitter.remaining_count_in_hour(
+        update.effective_user.id
+    )
+    if remiaining_count <= 0:
+        await update.effective_message.reply_text(
+            f"你已用完全部 {max_count} 次投稿次数，请一小时后再试。"
+        )
+        return False
     return True
 
 
