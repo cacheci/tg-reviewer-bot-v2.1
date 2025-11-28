@@ -96,9 +96,18 @@ async def list_banned_users(
     update: Update, context: ContextTypes.DEFAULT_TYPE
 ):
     users = Banned_user.get_banned_users()
-    users_string = "屏蔽用户列表:\n" if users else "无屏蔽用户\n"
+    list_banned_users_page_count = 1
+    users_string = ("屏蔽用户列表:\n页面" + str(list_banned_users_page_count) + "\n") if users else "无屏蔽用户\n"
     for user in users:
-        users_string += f"\- {await get_banned_user_info(context, user)}\n"
+        new_banned_usr_str = f"\- {await get_banned_user_info(context, user)}\n"
+        if len(users_string + new_banned_usr_str) >= 1300:
+            await update.message.reply_text(
+                users_string,
+                parse_mode=ParseMode.MARKDOWN_V2,
+            )
+            list_banned_users_page_count += 1
+            users_string = "屏蔽用户列表:\n页面" + str(list_banned_users_page_count) + "\n"
+        users_string += new_banned_usr_str
     await update.message.reply_text(
         users_string,
         parse_mode=ParseMode.MARKDOWN_V2,
