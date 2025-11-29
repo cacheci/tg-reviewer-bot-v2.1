@@ -47,6 +47,11 @@ async def confirm_submission(
         if await check_submission(update) == False:
             return ConversationHandler.END
 
+        remiaining_count, max_count = Submitter.remaining_count_in_hour(update.effective_user.id)
+        if remiaining_count = 0:
+            await query.answer("您短期内投稿次数已达上限")
+            return ConversationHandler.END
+
         submission_id = int(query.data.split("#")[-1])
         last_submission_time = submission_timestamp.get(submission_id)
         if (
