@@ -40,6 +40,7 @@ from stats import (
     submitter_stats,
 )
 from utils import PrefixFilter
+from info import get_version_info, get_help_info
 
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
@@ -189,6 +190,21 @@ if __name__ == "__main__":
                 get_set_default_max_submission_per_hour,
                 filters=~filters.UpdateType.EDITED_MESSAGE
                 & filters.Chat(chat_id=int(TG_REVIEWER_GROUP)),
+            ),
+            CommandHandler(
+                "version",
+                get_version_info,
+                filters=~filters.UpdateType.EDITED_MESSAGE,
+            ),
+            CommandHandler(
+                "start",
+                get_version_info,
+                filters=~filters.UpdateType.EDITED_MESSAGE,
+            ),
+            CommandHandler(
+                "help",
+                get_help_info,
+                filters=~filters.UpdateType.EDITED_MESSAGE,
             ),
         ]
     )
