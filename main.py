@@ -32,7 +32,13 @@ from review_utils import (
     retract_approved_submission,
     send_custom_rejection_reason,
 )
-from stats import reviewer_stats, submitter_stats
+from stats import (
+    get_set_default_max_submission_per_hour,
+    get_set_submitter_max_submission_per_hour,
+    reset_submitter_max_submission_per_hour,
+    reviewer_stats,
+    submitter_stats,
+)
 from utils import PrefixFilter
 
 logging.basicConfig(
@@ -163,6 +169,24 @@ if __name__ == "__main__":
             CommandHandler(
                 "reviewer_stats",
                 reviewer_stats,
+                filters=~filters.UpdateType.EDITED_MESSAGE
+                & filters.Chat(chat_id=int(TG_REVIEWER_GROUP)),
+            ),
+            CommandHandler(
+                "limit",
+                get_set_submitter_max_submission_per_hour,
+                filters=~filters.UpdateType.EDITED_MESSAGE
+                & filters.Chat(chat_id=int(TG_REVIEWER_GROUP)),
+            ),
+            CommandHandler(
+                "limit_reset",
+                reset_submitter_max_submission_per_hour,
+                filters=~filters.UpdateType.EDITED_MESSAGE
+                & filters.Chat(chat_id=int(TG_REVIEWER_GROUP)),
+            ),
+            CommandHandler(
+                "limit_default",
+                get_set_default_max_submission_per_hour,
                 filters=~filters.UpdateType.EDITED_MESSAGE
                 & filters.Chat(chat_id=int(TG_REVIEWER_GROUP)),
             ),

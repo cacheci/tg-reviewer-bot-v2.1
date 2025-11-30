@@ -57,3 +57,71 @@ async def reviewer_stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
         reply_string, parse_mode=ParseMode.MARKDOWN_V2
     )
+
+
+async def get_set_submitter_max_submission_per_hour(
+    update: Update, context: ContextTypes.DEFAULT_TYPE
+):
+    if not context.args:
+        usage = "使用方法：\n\\- `\\\\limit [用户 ID]` : 获取用户当前限制\n\\- `\\\\limit [用户 ID] [最大每小时投稿数]` : 设置用户每小时投稿数限制"
+        await update.message.reply_text(
+            usage,
+            parse_mode=ParseMode.MARKDOWN_V2,
+        )
+        return
+    user_id = context.args[0]
+    if len(context.args) > 1:
+        max_submission_per_hour = int(context.args[1])
+        Submitter.set_submitter_max_submission_per_hour(
+            user_id, max_submission_per_hour
+        )
+        default_max = Submitter.get_default_max_submission_per_hour()
+        if default_max == max_submission_per_hour:
+            await update.message.reply_text(
+                f"用户 {user_id} 的每小时投稿数限制已设置为默认值: {max_submission_per_hour}，未来将随默认值的变化而变化"
+            )
+        else:
+            await update.message.reply_text(
+                f"设置成功，用户 {user_id} 的每小时投稿数限制已设置为: {max_submission_per_hour}"
+            )
+    else:
+        max_submission_per_hour = (
+            Submitter.get_submitter_max_submission_per_hour(user_id)
+        )
+        await update.message.reply_text(
+            f"用户 {user_id} 的每小时投稿数限制为: {max_submission_per_hour}"
+        )
+
+
+async def reset_submitter_max_submission_per_hour(
+    update: Update, context: ContextTypes.DEFAULT_TYPE
+):
+    if not context.args:
+        await update.message.reply_text("请提供用户 ID")
+        return
+    user_id = context.args[0]
+    default_max = Submitter.get_default_max_submission_per_hour()
+    Submitter.set_submitter_max_submission_per_hour(user_id, default_max)
+    await update.message.reply_text(
+        f"重置成功，用户的每小时投稿数限制已设置为默认值: {default_max}"
+    )
+
+
+async def get_set_default_max_submission_per_hour(
+    update: Update, context: ContextTypes.DEFAULT_TYPE
+):
+    if not context.args:
+        max_submission_per_hour = (
+            Submitter.get_default_max_submission_per_hour()
+        )
+        await update.message.reply_text(
+            f"当前默认每小时投稿数限制为: {max_submission_per_hour}\n使用方法： `\\\\limit_default [最大每小时投稿数]` : 设置默认每小时投稿数限制",
+            parse_mode=ParseMode.MARKDOWN_V2,
+        )
+        return
+
+    new_max_submission_per_hour = context.args[0]
+    Submitter.set_default_max_submission_per_hour(new_max_submission_per_hour)
+    await update.message.reply_text(
+        f"默认每小时投稿数限制已设置为: {new_max_submission_per_hour}"
+    )

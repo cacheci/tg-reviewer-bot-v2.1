@@ -44,6 +44,9 @@ async def confirm_submission(
     if query.data.startswith("cancel"):
         await query.edit_message_text(text="投稿已取消")
     elif query.data.startswith(("anonymous", "realname")):
+        if await check_submission(update) == False:
+            return ConversationHandler.END
+
         submission_id = int(query.data.split("#")[-1])
         last_submission_time = submission_timestamp.get(submission_id)
         if (
@@ -61,6 +64,17 @@ async def confirm_submission(
                 return
         else:
             submission_timestamp.put(submission_id, int(time.time()))
+
+        remiaining_count, max_count = Submitter.remaining_count_in_hour(update.effective_user.id)
+        if remiaining_count <= 0:
+            try:
+                await query.edit_message_text(
+                    text="您短期内投稿次数已达上限。\n\n短时间大量投稿会给审核带来严重负担，并降低审核的质量。因此，我们为投稿设置了投稿限速，短时间内大量投稿会触发限速。我们强烈建议您在想要投稿的内容中精选少量内容投稿。",
+                    reply_markup=query.message.reply_markup
+                )
+                return
+            except:
+                return
 
         if len(submission["text"]) > TG_EXPAND_LENGTH:
             submission["text"] = (
@@ -118,6 +132,7 @@ async def confirm_submission(
 
     del message_groups[user.id]
     Submitter.count_increase(user.id, "submission_count")
+    Submitter.add_count_in_hour(user.id)
     return ConversationHandler.END
 
 
