@@ -33,9 +33,7 @@ from review_utils import (
     send_custom_rejection_reason,
 )
 from stats import (
-    get_set_default_max_submission_per_hour,
     get_set_submitter_max_submission_per_hour,
-    reset_submitter_max_submission_per_hour,
     reviewer_stats,
     submitter_stats,
 )
@@ -185,20 +183,7 @@ if __name__ == "__main__":
             CommandHandler(
                 "limit",
                 get_set_submitter_max_submission_per_hour,
-                filters=~filters.UpdateType.EDITED_MESSAGE
-                & filters.Chat(chat_id=int(TG_REVIEWER_GROUP)),
-            ),
-            CommandHandler(
-                "limit_reset",
-                reset_submitter_max_submission_per_hour,
-                filters=~filters.UpdateType.EDITED_MESSAGE
-                & filters.Chat(chat_id=int(TG_REVIEWER_GROUP)),
-            ),
-            CommandHandler(
-                "limit_default",
-                get_set_default_max_submission_per_hour,
-                filters=~filters.UpdateType.EDITED_MESSAGE
-                & filters.Chat(chat_id=int(TG_REVIEWER_GROUP)),
+                filters=~filters.UpdateType.EDITED_MESSAGE,
             ),
             CommandHandler(
                 "version",
