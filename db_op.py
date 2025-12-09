@@ -136,7 +136,7 @@ class Submitter(Base):
             ) + timedelta(hours=1)
 
             if max_submission_per_hour == -1:
-                return 9999, 9999
+                return 9999, None
             # if last submit is before 1 hour, return max_submission_per_hour
             elif (
                 datetime.now() >= next_hour_begin
@@ -146,7 +146,7 @@ class Submitter(Base):
             elif max_submission_per_hour > 0:
                 return (
                     max_submission_per_hour - count_from_last_hour,
-                    max_submission_per_hour,
+                    next_hour_begin,
                 )
         except IndexError:
             print(f"IndexError: Submitter {user_id} not found")
