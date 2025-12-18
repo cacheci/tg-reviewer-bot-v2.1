@@ -129,8 +129,8 @@ async def confirm_submission(
         else:
             submission_timestamp.put(submission_id, int(time.time()))
 
-        remiaining_count, next_hour_begin = Submitter.remaining_count_in_hour(update.effective_user.id)
-        if remiaining_count <= 0:
+        remaining_count, next_hour_begin = Submitter.remaining_count_in_hour(update.effective_user.id)
+        if remaining_count <= 0:
             try:
                 await query.answer("❌ 您短期内投稿数量已达上限")
                 await query.edit_message_text(
