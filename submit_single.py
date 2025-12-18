@@ -132,6 +132,7 @@ async def confirm_submission(
         remiaining_count, max_count = Submitter.remaining_count_in_hour(update.effective_user.id)
         if remiaining_count <= 0:
             try:
+                await query.answer("❌ 您短期内投稿数量已达上限")
                 await query.edit_message_text(
                     text="您短期内投稿次数已达上限。\n\n短时间大量投稿会给审核带来严重负担，并降低审核的质量。因此，我们为投稿设置了投稿限速，短时间内大量投稿会触发限速。我们强烈建议您在想要投稿的内容中精选少量内容投稿。",
                     reply_markup=query.message.reply_markup
