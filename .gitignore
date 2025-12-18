@@ -161,3 +161,7 @@ cython_debug/
 
 # VSCode
 .vscode
+
+# File system
+desktop.ini
+.DS_Store
