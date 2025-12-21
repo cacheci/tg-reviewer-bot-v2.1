@@ -384,11 +384,7 @@ async def send_custom_rejection_reason(
     # if the submission has not been rejected yet
     status = get_submission_status(submission_meta)
     if (
-        status[0]
-        not in [
-            SubmissionStatus.REJECTED_NO_REASON,
-            SubmissionStatus.REJECTED,
-        ]
+        "已拒绝稿件" not in review_message.text_markdown_v2_urled
         or status[1] == "通过后撤回"
     ):
         return
