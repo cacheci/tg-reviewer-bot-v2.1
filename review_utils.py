@@ -539,7 +539,10 @@ def get_rejection_reason_text(option):
     return option_text
 
 
-def get_submission_status(submission_meta):
+def get_submission_status(submission_meta, longago_status=0):
+    if longago_status == SubmissionStatus.APPROVED:
+        return SubmissionStatus.APPROVED, ""
+
     status = -1
     rejection_reason = ""
     review_options = [
@@ -564,14 +567,14 @@ def get_submission_status(submission_meta):
             ]:
                 rejection_reason = get_rejection_reason_text(review_option)
                 break
-    elif reject_noreason_num >= REJECT_NUMBER_REQUIRED:
+    elif reject_noreason_num >= REJECT_NUMBER_REQUIRED or longago_status == SubmissionStatus.REJECTED:
         status = SubmissionStatus.REJECTED_NO_REASON
     else:
         status = SubmissionStatus.PENDING
     return status, rejection_reason
 
 
-def generate_submission_meta_string(submission_meta,longago_approve=False):
+def generate_submission_meta_string(submission_meta, longago_status=0):
     # generate the submission_meta string from the submission_meta
     # approved submission string style:
     """
@@ -625,9 +628,8 @@ def generate_submission_meta_string(submission_meta,longago_approve=False):
     """
 
     # get status and rejection reason
-    status, rejection_reason = get_submission_status(submission_meta)
-    if longago_approve:
-        status = SubmissionStatus.APPROVED
+    status, rejection_reason = get_submission_status(submission_meta, longago_status)
+
     # submitter_string
     submitter_id, submitter_username, submitter_fullname, _ = submission_meta[
         "submitter"

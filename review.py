@@ -17,6 +17,7 @@ from env import (
 )
 from review_utils import (
     ReviewChoice,
+    SubmissionStatus,
     generate_submission_meta_string,
     get_decision,
     remove_decision,
@@ -174,8 +175,11 @@ async def approve_submission(
             ],
         ]
     )
+
+    longago_status = 0 if not submission_longago else SubmissionStatus.APPROVED
+
     await review_message.edit_text(
-        text=generate_submission_meta_string(submission_meta,longago_approve=submission_longago),
+        text=generate_submission_meta_string(submission_meta,longago_status=longago_status),
         parse_mode=ParseMode.MARKDOWN_V2,
         reply_markup=inline_keyboard,
     )
@@ -334,8 +338,9 @@ async def reject_submission(
             )
         ]
     )
+    longago_status = 0 if not submission_longago else SubmissionStatus.REJECTED
     await review_message.edit_text(
-        text=generate_submission_meta_string(submission_meta),
+        text=generate_submission_meta_string(submission_meta, longago_status=longago_status),
         parse_mode=ParseMode.MARKDOWN_V2,
         reply_markup=InlineKeyboardMarkup(inline_keyboard_content),
     )
