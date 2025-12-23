@@ -4,13 +4,14 @@ from telegram.ext import ContextTypes
 from telegram.helpers import escape_markdown
 
 from db_op import Banned_origin, Banned_user
-from utils import get_name_from_uid, is_integer, sanitize_userinfo
-
+from utils import get_name_from_uid, is_integer, generate_userinfo_str
+import re
 
 async def ban_user(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not context.args:
         await update.message.reply_text(
-            "请提供用户ID和原因",
+            "使用方法：\n`/ban <usrid> reason`",
+            parse_mode=ParseMode.MARKDOWN_V2,
         )
         return
     user, result = context.args[0], context.args[1:]
@@ -25,12 +26,16 @@ async def ban_user(update: Update, context: ContextTypes.DEFAULT_TYPE):
             replyto_user_id = str(update.message.reply_to_message.from_user.id)
             self_id = str((await context.bot.get_me()).id)
             if replyto_user_id == self_id:
+                tag_unban_id = re.findall(r"#UNBAN_(\d+)", update.message.reply_to_message.text)
                 tag_submitter_id = re.findall(r"#SUBMITTER_(\d+)", update.message.reply_to_message.text)
-                if tag_submitter_id:
+                if tag_unban_id:
                     result = user
-                    user = tag_submitter_id[-1]
+                    user = tag_unban_id[0]
+                elif tag_submitter_id:
+                    result = user
+                    user = tag_submitter_id[0]
                 else:
-                    update.message.reply_text(
+                    await update.message.reply_text(
                         f"ID *{escape_markdown(user,version=2,)}* 无效，且回复的消息中无投稿人信息。",
                         parse_mode=ParseMode.MARKDOWN_V2,
                     )
@@ -65,7 +70,7 @@ async def ban_user(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     username, fullname = await get_name_from_uid(context, user)
     Banned_user.ban_user(
-        user, username, fullname, update.effective_user.id, " ".join(result)
+        user, username, fullname, update.effective_user.id, result
     )
     if Banned_user.is_banned(user):
         await update.message.reply_text(
@@ -86,22 +91,38 @@ async def ban_user(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def get_banned_user_info(context: ContextTypes.DEFAULT_TYPE, user):
-    banned_userinfo = "*"+ escape_markdown(sanitize_userinfo(user.user_fullname),version=2) + "* \\(" + (f"@{escape_markdown(user.user_name, version=2)}, " if user.user_name else "") + "`" + user.user_id + "`\\)"
+    banned_userinfo = generate_userinfo_str(id=int(user.user_id),username=user.user_name,fullname=user.user_fullname)
     banned_by_username, banned_by_fullname = await get_name_from_uid(
         context, user.banned_by
     )
-    banned_by_userinfo = escape_markdown(sanitize_userinfo(banned_by_fullname),version=2) + " \\(@" + escape_markdown(banned_by_username,version=2) + ", `" + user.banned_by + "`\\)"
+    banned_by_userinfo = generate_userinfo_str(id=int(user.banned_by),username=banned_by_username,fullname=banned_by_fullname)
     users_string = f"{banned_userinfo}\n  在 {escape_markdown(str(user['banned_date']), version=2)}\n  由 {banned_by_userinfo}\n  因 `{escape_markdown(user['banned_reason'], version=2)}` 屏蔽"
     return users_string
 
 
 async def unban_user(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not context.args:
-        await update.message.reply_text(
-            "请提供用户ID",
-        )
-        return
-    user = context.args[0]
+        if update.message.reply_to_message:
+            tag_ban_id = re.findall(r"#BAN_(\d+)", update.message.reply_to_message.text)
+            tag_submitter_id = re.findall(r"#SUBMITTER_(\d+)", update.message.reply_to_message.text)
+            if tag_ban_id:
+                user = tag_ban_id[0]
+            elif tag_submitter_id:
+                user = tag_submitter_id[0]
+            else:
+                await update.message.reply_text(
+                    "使用方法：\n`/unban <usrid>`",
+                    parse_mode=ParseMode.MARKDOWN_V2,
+                )
+                return
+        else:
+            await update.message.reply_text(
+                "使用方法：\n`/unban <usrid>`",
+                parse_mode=ParseMode.MARKDOWN_V2,
+            )
+            return
+    else:
+        user = context.args[0]
 
     if user.startswith(("#USER_","#SUBMITTER_","#BAN_")):
         if user.startswith("#USER_"):
@@ -212,10 +233,10 @@ async def ban_origin(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def get_banned_origin_info(context: ContextTypes.DEFAULT_TYPE, origin):
     banned_origininfo = f"`{origin.origin_id}`"
-    banned_by_originname, banned_by_fullname = await get_name_from_uid(
+    banned_by_username, banned_by_fullname = await get_name_from_uid(
         context, origin.banned_by
     )
-    banned_by_origininfo = f"{escape_markdown(sanitize_userinfo(banned_by_fullname),version=2)} \\(@{escape_markdown(banned_by_originname,version=2)}, `{origin.banned_by}`\\)"
+    banned_by_origininfo = banned_by_username(id=int(origin.banned_by),fullname=banned_by_fullname,username=banned_by_username)
     origins_string = f"{banned_origininfo}\n  在 {escape_markdown(str(origin['banned_date']), version=2)}\n  由 {banned_by_origininfo}\n  因 `{escape_markdown(origin['banned_reason'], version=2)}` 屏蔽"
     return origins_string
 

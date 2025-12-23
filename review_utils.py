@@ -17,7 +17,7 @@ from env import (
     TG_REJECTED_CHANNEL,
     TG_RETRACT_NOTIFY,
 )
-from utils import send_result_to_submitter, send_submission, sanitize_userinfo
+from utils import send_result_to_submitter, send_submission, sanitize_userinfo, generate_userinfo_str
 
 """
 submission_meta = {
@@ -632,7 +632,7 @@ def generate_submission_meta_string(submission_meta,longago_approve=False):
     submitter_id, submitter_username, submitter_fullname, _ = submission_meta[
         "submitter"
     ]
-    submitter_string = f"投稿人：{escape_markdown(sanitize_userinfo(submitter_fullname),version=2)} \\({f'@{submitter_username}, ' if submitter_username else ''}`{submitter_id}`\\)\n"
+    submitter_string = f"投稿人：{generate_userinfo_str(id=int(submitter_id),username=submitter_username,fullname=submitter_fullname)}\n"
 
     # reviewers_string
     is_nsfw = False
@@ -663,12 +663,12 @@ def generate_submission_meta_string(submission_meta,longago_approve=False):
                         f"因为 {escape_markdown(get_rejection_reason_text(option),version=2)} 拒稿"
                     )
                     option_sign = "🔴"
-            reviewers_string += f"\n\\- {option_sign} 由 {escape_markdown(sanitize_userinfo(reviewer_fullname),version=2)} \\({f'@{reviewer_username}, ' if reviewer_username else ''}`{reviewer_id}`\\) {escape_markdown(option_text,version=2)}"
+            reviewers_string += f"\n\\- {option_sign} 由 {generate_userinfo_str(id=int(reviewer_id),fullname=reviewer_fullname,username=reviewer_username)} {escape_markdown(option_text,version=2)}"
 
     # append_string
     append_string = "审稿人备注："
     for reviewer_fullname, append_list in submission_meta["append"].items():
-        append_string += f"\n \\- 由 {escape_markdown(sanitize_userinfo(reviewer_fullname),version=2)} 添加的备注："
+        append_string += f"\n \\- 由 {sanitize_userinfo(escape_markdown(reviewer_fullname),version=2)} 添加的备注："
         append_string += "".join(
             f"\n{i+1}. {escape_markdown(message,version=2)}" for i, message in enumerate(append_list)
         )
