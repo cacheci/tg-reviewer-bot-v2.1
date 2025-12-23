@@ -223,7 +223,7 @@ def generate_userinfo_str(id: int, fullname: str | None = None, username: str | 
         userinfo_str += sanitize_userinfo(escape_markdown(fullname))
     else:
         userinfo_str += "*_神秘用户_*"
-    userinfo_str += " ("
+    userinfo_str += " \\("
 
     if username is not None:
         if mention:
@@ -232,7 +232,7 @@ def generate_userinfo_str(id: int, fullname: str | None = None, username: str | 
             userinfo_str += ("`" + escape_markdown(username, version = 2) + "`")
         userinfo_str += ", "
 
-    userinfo_str += "`" + str(id) + "`)"
+    userinfo_str += "`" + str(id) + "`\\)"
 
     return userinfo_str
 
