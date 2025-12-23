@@ -220,7 +220,7 @@ def generate_userinfo_str(id: int, fullname: str | None = None, username: str | 
     userinfo_str = ""
 
     if fullname is not None:
-        userinfo_str += sanitize_userinfo(escape_markdown(fullname))
+        userinfo_str += sanitize_userinfo(escape_markdown(fullname,version = 2))
     else:
         userinfo_str += "*_神秘用户_*"
     userinfo_str += " \\("
