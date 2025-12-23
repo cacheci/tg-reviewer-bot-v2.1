@@ -13,11 +13,10 @@ else:
     data_dir = None
 
 if data_dir is not None:
-    print("JSON config found, using JSON mode.")
     try:
         with open((data_dir + "config.json"), 'r', encoding='utf-8') as f:
             data = json.load(f)
-            print("Read config file, JSON config file mode.")
+            logger.info("Read config file, JSON config file mode.")
 
             # required settings
             if data['required'] is None:
@@ -62,7 +61,7 @@ if data_dir is not None:
         raise EnvironmentError("Warning: Failed to read JSON file permission denied!")
 else:
     try:
-        print(f"Warning: Failed to read config file, trying environment variable...")
+        logger.info(f"Warning: Failed to read config file, trying environment variable...")
 
         # get args from environment virables
         # required settings
