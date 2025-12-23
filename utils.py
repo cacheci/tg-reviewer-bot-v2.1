@@ -291,6 +291,6 @@ def sanitize_userinfo(text: str) -> str:
     if not text:
         return "*_神秘用户_*"
     userinfo = re.sub(r'[\u200B-\u200F\u202A-\u202E\u2060-\u206F\uFEFF\x00-\x1F\x7F\x80-\x9F]', '', text).strip()
-    if userinfo = "":
+    if userinfo == "":
         userinfo = "*_空白名称_*"
     return userinfo
