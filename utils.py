@@ -1,4 +1,4 @@
-import collections
+import collections, re
 
 from telegram import (
     InputMediaDocument,
@@ -220,16 +220,16 @@ def generate_userinfo_str(id: int, fullname: str | None = None, username: str | 
     userinfo_str = ""
 
     if fullname is not None:
-        userinfo_str += escape_markdown(sanitize_userinfo(fullname))
+        userinfo_str += sanitize_userinfo(escape_markdown(fullname))
     else:
         userinfo_str += "*_神秘用户_*"
     userinfo_str += " ("
 
     if username is not None:
         if mention:
-            userinfo_str += ("@" + escape_markdown(username))
+            userinfo_str += ("@" + escape_markdown(username, version = 2))
         else:
-            userinfo_str += ("`" + escape_markdown(username) + "`")
+            userinfo_str += ("`" + escape_markdown(username, version = 2) + "`")
         userinfo_str += ", "
 
     userinfo_str += "`" + str(id) + "`)"
@@ -285,3 +285,9 @@ def is_integer(s):
         return True
     except ValueError:
         return False
+
+
+def sanitize_userinfo(text: str) -> str:
+    if not text:
+        return "*_神秘用户_*"
+    return re.sub(r'[\u200B-\u200F\u202A-\u202E\u2060-\u206F\uFEFF\x00-\x1F\x7F\x80-\x9F]', '', text).strip()

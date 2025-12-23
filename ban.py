@@ -3,8 +3,8 @@ from telegram.constants import ParseMode
 from telegram.ext import ContextTypes
 from telegram.helpers import escape_markdown
 
-from db_op import Banned_origin, Banned_user, sanitize_userinfo
-from utils import get_name_from_uid, is_integer
+from db_op import Banned_origin, Banned_user
+from utils import get_name_from_uid, is_integer, sanitize_userinfo
 
 
 async def ban_user(update: Update, context: ContextTypes.DEFAULT_TYPE):
