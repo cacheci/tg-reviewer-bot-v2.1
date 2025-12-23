@@ -216,13 +216,22 @@ async def get_name_from_uid(context, user_id):
         return "", ""
 
 
-def generate_userinfo_str(id: int, fullname: str | None = None, username: str | None = None, mention: bool = True) -> str:
+def generate_userinfo_str(
+        id: int, fullname: str | None = None,
+        username: str | None = None,
+        mention: bool = True,
+        boldfullname: bool = False
+    ) -> str:
     userinfo_str = ""
 
     if fullname is not None:
-        userinfo_str += sanitize_userinfo(escape_markdown(fullname,version = 2))
+        if boldfullname:
+            userinfo_str += ("*" + sanitize_userinfo(escape_markdown(fullname,version = 2)) + "*")
+        else:
+            userinfo_str += sanitize_userinfo(escape_markdown(fullname,version = 2))
     else:
         userinfo_str += "*_神秘用户_*"
+
     userinfo_str += " \\("
 
     if username is not None:
