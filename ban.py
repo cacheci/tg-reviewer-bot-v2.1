@@ -13,7 +13,7 @@ async def ban_user(update: Update, context: ContextTypes.DEFAULT_TYPE):
         # need at least reason even if user is from reply
         await update.message.reply_text(
             "使用方法：\n`/ban <usrid> reason`",
-            "使用方法：\n`/ban <usrid> reason`",
+            parse_mode=ParseMode.MARKDOWN_V2,
         )
         return
     user, result = context.args[0], context.args[1:]
